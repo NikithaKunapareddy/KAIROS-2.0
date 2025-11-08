@@ -21,10 +21,18 @@ export default function AROverlayCanvas({ detections, overlays }: AROverlayCanva
     const videoElement = document.querySelector('video');
     if (!videoElement) return;
 
+    // Debug logging
+    console.log('🎨 AROverlayCanvas mounted:', {
+      overlays: overlays.length,
+      detections: detections.length,
+      videoReady: videoElement.readyState >= 2
+    });
+
     // Set canvas size to match video display
     const resizeCanvas = () => {
       canvas.width = videoElement.clientWidth;
       canvas.height = videoElement.clientHeight;
+      console.log('📐 Canvas resized:', canvas.width, 'x', canvas.height);
     };
 
     resizeCanvas();
@@ -37,9 +45,21 @@ export default function AROverlayCanvas({ detections, overlays }: AROverlayCanva
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Debug: Draw overlay count indicator
+      if (overlays.length > 0) {
+        ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+        ctx.fillRect(10, 10, 200, 40);
+        ctx.fillStyle = '#00ff00';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText(`Overlays: ${overlays.length}`, 20, 35);
+      }
+
       // Draw overlays
-      overlays.forEach((overlay) => {
+      overlays.forEach((overlay, index) => {
         drawOverlay(ctx, overlay, detections, canvas);
+        if (index === 0) {
+          console.log('🎯 Drawing overlay:', overlay.type, overlay.text || overlay.label);
+        }
       });
 
       requestAnimationFrame(animate);
@@ -85,7 +105,7 @@ export default function AROverlayCanvas({ detections, overlays }: AROverlayCanva
         drawFlow(ctx, centerX, centerY, scaledWidth, overlay);
         break;
       case 'label':
-        drawLabel(ctx, centerX, y * scaleY - 20, overlay);
+        drawLabel(ctx, x * scaleX, y * scaleY, scaledWidth, scaledHeight, overlay);
         break;
       case 'arrow':
         drawArrow(ctx, centerX, centerY, overlay);
@@ -159,13 +179,79 @@ export default function AROverlayCanvas({ detections, overlays }: AROverlayCanva
     ctx.setLineDash([]);
   };
 
-  const drawLabel = (ctx: CanvasRenderingContext2D, x: number, y: number, overlay: AROverlay) => {
+  const drawLabel = (
+    ctx: CanvasRenderingContext2D, 
+    bboxX: number, 
+    bboxY: number, 
+    bboxWidth: number, 
+    bboxHeight: number, 
+    overlay: AROverlay
+  ) => {
     const text = overlay.label || overlay.text || '';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(x - 50, y - 15, 100, 30);
+    const position = overlay.position || 'top';
+    const color = overlay.color || '#00ff00';
     
-    ctx.fillStyle = '#ffffff';
+    // Calculate label position based on position property
+    let x = bboxX + bboxWidth / 2; // Default center X
+    let y = bboxY - 30; // Default top
+    
+    switch (position) {
+      case 'top':
+        y = bboxY - 30;
+        break;
+      case 'top-middle':
+      case 'top-center':
+        y = bboxY - 15;
+        break;
+      case 'bottom':
+        y = bboxY + bboxHeight + 30;
+        break;
+      case 'left':
+        x = bboxX - 60;
+        y = bboxY + bboxHeight / 2;
+        break;
+      case 'right':
+        x = bboxX + bboxWidth + 60;
+        y = bboxY + bboxHeight / 2;
+        break;
+      case 'center':
+      case 'middle':
+        x = bboxX + bboxWidth / 2;
+        y = bboxY + bboxHeight / 2;
+        break;
+      case 'top-left':
+        x = bboxX - 40;
+        y = bboxY - 20;
+        break;
+      case 'bottom-left':
+        x = bboxX - 40;
+        y = bboxY + bboxHeight + 20;
+        break;
+      case 'bottom-right':
+        x = bboxX + bboxWidth + 40;
+        y = bboxY + bboxHeight + 20;
+        break;
+      case 'front':
+      case 'front-top':
+        x = bboxX + bboxWidth / 2;
+        y = bboxY - 40;
+        break;
+    }
+    
+    ctx.font = 'bold 14px sans-serif';
+    const textWidth = ctx.measureText(text).width;
+    
+    // Background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(x - textWidth / 2 - 8, y - 12, textWidth + 16, 24);
+    
+    // Border with overlay color
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - textWidth / 2 - 8, y - 12, textWidth + 16, 24);
+    
+    // Text
+    ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, x, y);
@@ -318,7 +404,11 @@ export default function AROverlayCanvas({ detections, overlays }: AROverlayCanva
     <canvas
       ref={canvasRef}
       className="absolute inset-0 pointer-events-none z-20"
-      style={{ width: '100%', height: '100%' }}
+      style={{
+        width: '100%',
+        height: '100%',
+      }}
     />
   );
 }
+

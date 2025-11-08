@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { conceptAPI } from '@/lib/api/client';
+import { useSearchParams } from 'next/navigation';
 
 // Module data structure
 interface Module {
@@ -17,8 +18,12 @@ interface Module {
 }
 
 export default function ModulesPage() {
+  const searchParams = useSearchParams();
+  const topicFromUrl = searchParams.get('topic');
+  
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(topicFromUrl || '');
+  const [allModules, setAllModules] = useState<Module[]>([]);
   const [filteredModules, setFilteredModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,40 +31,61 @@ export default function ModulesPage() {
 
   // Load topics from backend
   useEffect(() => {
-    const load = async () => {
+    const fetchModules = async () => {
       setLoading(true);
       try {
-        const topics = await conceptAPI.getTopics();
-        // Flatten topics into module-like list
-        const modules: Module[] = [];
-        Object.keys(topics).forEach((subject) => {
-          (topics as any)[subject].forEach((t: any) => {
-            modules.push({
-              id: t.name.toLowerCase().replace(/\s+/g, '_'),
-              title: t.name,
-              category: t.category || subject,
-              difficulty: t.difficulty || 'intermediate',
-              notes: t.notes || null,
-              byjus_link: t.byjus_link || null,
-            });
-          });
-        });
-
-        // initial filter
-        setFilteredModules(modules);
-      } catch (e) {
-        console.error('Failed to load topics', e);
+        // First try to generate fresh content from Gemini
+        const geminiResponse = await fetch('http://localhost:8000/api/topics/generate?count=100');
+        if (geminiResponse.ok) {
+          const geminiData = await geminiResponse.json();
+          if (geminiData.topics && geminiData.topics.length > 0) {
+            const formatted: Module[] = geminiData.topics.map((topic: any, index: number) => ({
+              id: `gemini-${index}`,
+              title: topic.name,
+              category: topic.category || 'general',
+              difficulty: topic.difficulty || 'intermediate',
+              notes: topic.notes || '',
+              formulas: topic.formulas || [],
+              key_points: topic.key_points || [],
+              applications: topic.applications || [],
+              byjus_link: topic.byjus_link || `https://byjus.com/search/?q=${encodeURIComponent(topic.name)}`
+            }));
+            setAllModules(formatted);
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // Fallback to static topics if Gemini fails
+        const response = await fetch('http://localhost:8000/api/topics');
+        const data = await response.json();
+        
+        const formatted: Module[] = Object.entries(data).flatMap(([subject, topics]: [string, any]) =>
+          topics.map((topic: any, index: number) => ({
+            id: `${subject}-${index}`,
+            title: topic.name,
+            category: subject,
+            difficulty: topic.difficulty || 'intermediate',
+            notes: topic.notes || '',
+            formulas: topic.formulas || [],
+            byjus_link: topic.byjus_link
+          }))
+        );
+        
+        setAllModules(formatted);
+      } catch (error) {
+        console.error('Failed to fetch modules:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    load();
+    fetchModules();
   }, []);
 
   useEffect(() => {
     // apply filters locally when modules change
-    let filtered = filteredModules;
+    let filtered = allModules;
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -75,8 +101,7 @@ export default function ModulesPage() {
     }
 
     setFilteredModules(filtered);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, allModules]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-kairos-dark via-slate-900 to-kairos-dark">

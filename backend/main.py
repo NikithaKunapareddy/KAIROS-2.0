@@ -1,11 +1,18 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import sympy as sp
 import networkx as nx
 from sympy.parsing.sympy_parser import parse_expr
 import json
+import google.generativeai as genai
+
+# Configure Gemini API
+GEMINI_API_KEY = "AIzaSyChw-jCFIz3a25nOWDC4rD76alb8zVYvAk"
+genai.configure(api_key=GEMINI_API_KEY)
+# Use Gemini 2.0 Flash - lowest cost, fastest model
+gemini_model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
 app = FastAPI(title="KAIROS 2.0 Backend API", version="2.0.0")
 
@@ -29,6 +36,7 @@ class ConceptResponse(BaseModel):
     concepts: List[Dict[str, Any]]
     overlays: List[Dict[str, Any]]
     modules: List[Dict[str, Any]]
+    web_info: Optional[Dict[str, Any]] = None
 
 
 # Knowledge base mapping objects to scientific concepts
@@ -41,8 +49,14 @@ CONCEPT_DATABASE = {
                 "formulas": ["6CO2 + 6H2O + light → C6H12O6 + 6O2"],
                 "overlays": [
                     {"type": "flow", "from": "CO2", "to": "O2", "color": "green"},
-                    {"type": "label", "text": "Chlorophyll", "position": "leaf"},
-                    {"type": "arrow", "direction": "up", "label": "Transpiration"}
+                    {"type": "label", "text": "Blade", "position": "top", "color": "#00ff00"},
+                    {"type": "label", "text": "Petiole", "position": "middle", "color": "#88ff00"},
+                    {"type": "label", "text": "Base", "position": "bottom", "color": "#66ff00"},
+                    {"type": "label", "text": "Stoma", "position": "right", "color": "#44ff00"},
+                    {"type": "label", "text": "Chloroplast", "position": "center", "color": "#22ff00"},
+                    {"type": "arrow", "direction": "down", "label": "H₂O Uptake", "color": "#0088ff"},
+                    {"type": "arrow", "direction": "up", "label": "O₂ Release", "color": "#00ff88"},
+                    {"type": "particles", "movement": "random", "color": "rgba(0,255,0,0.4)", "label": "CO₂"},
                 ]
             },
             {
@@ -73,6 +87,12 @@ CONCEPT_DATABASE = {
                 "formulas": ["τ = r × F", "τ = I * α"],
                 "overlays": [
                     {"type": "vector", "from": "pedal", "rotation": True, "color": "red"},
+                    {"type": "label", "text": "Pedal", "position": "bottom-left", "color": "#ff0000"},
+                    {"type": "label", "text": "Crank Arm", "position": "left", "color": "#ff4400"},
+                    {"type": "label", "text": "Chain", "position": "middle", "color": "#ff8800"},
+                    {"type": "label", "text": "Wheel", "position": "bottom-right", "color": "#ffcc00"},
+                    {"type": "label", "text": "Frame", "position": "top", "color": "#ff00ff"},
+                    {"type": "label", "text": "Handlebar", "position": "top-left", "color": "#8800ff"},
                     {"type": "arc", "radius": "r", "force": "F"},
                     {"type": "label", "text": "τ = r × F", "position": "pedal"}
                 ]
@@ -114,6 +134,12 @@ CONCEPT_DATABASE = {
                 "formulas": ["V = π * r² * h", "SA = 2πr² + 2πrh"],
                 "overlays": [
                     {"type": "dimension", "labels": ["r", "h"], "color": "cyan"},
+                    {"type": "label", "text": "Cap/Lid", "position": "top", "color": "#00ffff"},
+                    {"type": "label", "text": "Neck", "position": "top-middle", "color": "#00ccff"},
+                    {"type": "label", "text": "Body", "position": "center", "color": "#0099ff"},
+                    {"type": "label", "text": "Base", "position": "bottom", "color": "#0066ff"},
+                    {"type": "label", "text": "Height (h)", "position": "right", "color": "#ffff00"},
+                    {"type": "label", "text": "Radius (r)", "position": "bottom", "color": "#ffff00"},
                     {"type": "highlight", "area": "surface", "opacity": 0.3}
                 ]
             },
@@ -145,7 +171,12 @@ CONCEPT_DATABASE = {
                 "formulas": ["y = x*tan(θ) - (g*x²)/(2*v₀²*cos²(θ))", "R = (v₀²*sin(2θ))/g"],
                 "overlays": [
                     {"type": "trajectory", "path": "parabolic", "color": "yellow"},
-                    {"type": "vector", "components": ["vx", "vy"], "decompose": True}
+                    {"type": "vector", "components": ["vx", "vy"], "decompose": True},
+                    {"type": "label", "text": "Panels", "position": "center", "color": "#ff8800"},
+                    {"type": "label", "text": "Valve", "position": "right", "color": "#ff4400"},
+                    {"type": "label", "text": "Seam", "position": "left", "color": "#ff0000"},
+                    {"type": "label", "text": "Surface", "position": "top", "color": "#ffcc00"},
+                    {"type": "arrow", "direction": "down", "label": "Gravity (g)", "color": "#ff0000"}
                 ]
             },
             {
@@ -167,7 +198,15 @@ CONCEPT_DATABASE = {
                 "formulas": ["F = ma", "F₁₂ = -F₂₁"],
                 "overlays": [
                     {"type": "force_diagram", "vectors": ["weight", "normal", "friction"]},
-                    {"type": "acceleration_arrow", "color": "green"}
+                    {"type": "acceleration_arrow", "color": "green"},
+                    {"type": "label", "text": "Engine", "position": "front", "color": "#ff0000"},
+                    {"type": "label", "text": "Wheels", "position": "bottom", "color": "#ffff00"},
+                    {"type": "label", "text": "Chassis", "position": "center", "color": "#00ff00"},
+                    {"type": "label", "text": "Doors", "position": "left", "color": "#00ffff"},
+                    {"type": "label", "text": "Headlights", "position": "front-top", "color": "#ffffff"},
+                    {"type": "label", "text": "Windshield", "position": "top", "color": "#0088ff"},
+                    {"type": "vector", "name": "Acceleration", "direction": "forward", "color": "#00ff00"},
+                    {"type": "arrow", "direction": "down", "label": "Friction", "color": "#ff0000"}
                 ]
             },
             {
@@ -177,6 +216,35 @@ CONCEPT_DATABASE = {
                 "overlays": [
                     {"type": "heat_flow", "from": "engine", "color": "red"},
                     {"type": "label", "text": "Combustion", "position": "engine"}
+                ]
+            }
+        ]
+    },
+    "toothbrush": {
+        "concepts": [
+            {
+                "name": "Structure & Mechanics",
+                "category": "engineering",
+                "formulas": ["Pressure = Force / Area", "Cleaning Efficiency = Bristle Contact × Motion"],
+                "overlays": [
+                    {"type": "label", "text": "Bristles", "position": "right", "color": "#00ffff"},
+                    {"type": "label", "text": "Brush Head", "position": "top-right", "color": "#00ccff"},
+                    {"type": "label", "text": "Neck", "position": "center", "color": "#0099ff"},
+                    {"type": "label", "text": "Handle", "position": "left", "color": "#0066ff"},
+                    {"type": "label", "text": "Grip Area", "position": "bottom-left", "color": "#0033ff"},
+                    {"type": "arrow", "direction": "right", "label": "Brushing Motion", "color": "#ffff00"},
+                    {"type": "arrow", "direction": "down", "label": "Applied Pressure", "color": "#ff8800"},
+                    {"type": "label", "text": "Contact Surface", "position": "top", "color": "#ff00ff"},
+                    {"type": "particles", "label": "Bacteria Removal", "movement": "random", "color": "rgba(255, 0, 0, 0.6)"}
+                ]
+            },
+            {
+                "name": "Material Science",
+                "category": "chemistry",
+                "formulas": ["Nylon Properties", "Elasticity = Stress / Strain"],
+                "overlays": [
+                    {"type": "label", "text": "Nylon Bristles", "position": "right", "color": "#00ff00"},
+                    {"type": "label", "text": "Plastic Handle", "position": "left", "color": "#ffaa00"}
                 ]
             }
         ]
@@ -326,6 +394,44 @@ TOPICS_DATABASE = {
 }
 
 
+async def get_object_web_info(object_name: str) -> Dict[str, Any]:
+    """Get real-time web information about an object using Gemini"""
+    prompt = f"""Provide educational information about: {object_name}
+
+Return a JSON object with:
+- description: 2-3 sentence overview of what it is and its purpose
+- key_facts: Array of 3-5 interesting facts
+- scientific_principles: Array of 2-3 scientific concepts related to it
+- fun_fact: One interesting trivia
+
+Return ONLY valid JSON:
+{{"description":"...","key_facts":["..."],"scientific_principles":["..."],"fun_fact":"..."}}"""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        text = response.text.strip()
+        
+        # Clean markdown
+        text = text.replace("```json", "").replace("```", "").strip()
+        
+        # Find JSON in response
+        start_idx = text.find('{')
+        end_idx = text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            text = text[start_idx:end_idx+1]
+        
+        info = json.loads(text)
+        return info
+    except Exception as e:
+        print(f"❌ Error getting web info for {object_name}: {e}")
+        return {
+            "description": f"A {object_name} detected by the system.",
+            "key_facts": ["Object successfully identified"],
+            "scientific_principles": ["Object detection using machine learning"],
+            "fun_fact": "AI can recognize thousands of objects!"
+        }
+
+
 @app.get("/")
 async def root():
     return {
@@ -338,28 +444,51 @@ async def root():
 @app.post("/api/extract-concepts", response_model=ConceptResponse)
 async def extract_concepts(request: ConceptRequest):
     """
-    Extract scientific concepts from detected objects
+    Extract scientific concepts from detected objects with web search info
     """
     object_class = request.object_class.lower()
     
-    # Find matching concepts in database
+    # First try to find in static database
     concepts_data = CONCEPT_DATABASE.get(object_class, None)
     
+    # If not found, try to generate using Gemini
     if not concepts_data:
-        # Default fallback for unknown objects
-        concepts_data = {
-            "concepts": [
-                {
-                    "name": "Structure & Form",
-                    "category": "general",
-                    "formulas": [],
-                    "overlays": [
-                        {"type": "outline", "color": "white"},
-                        {"type": "label", "text": "Object Detected"}
+        print(f"🤖 Generating AR overlays for '{object_class}' using Gemini...")
+        try:
+            gemini_config = await generate_ar_overlays_gemini(object_class)
+            if gemini_config and gemini_config.get("concepts"):
+                concepts_data = gemini_config
+                print(f"✅ Generated {len(gemini_config['concepts'])} concepts for {object_class}")
+            else:
+                # Fallback for unknown objects
+                concepts_data = {
+                    "concepts": [
+                        {
+                            "name": "Structure & Form",
+                            "category": "general",
+                            "formulas": [],
+                            "overlays": [
+                                {"type": "outline", "color": "white"},
+                                {"type": "label", "text": "Object Detected", "position": "top", "color": "#00ff00"}
+                            ]
+                        }
                     ]
                 }
-            ]
-        }
+        except Exception as e:
+            print(f"❌ Failed to generate AR overlays: {e}")
+            concepts_data = {
+                "concepts": [
+                    {
+                        "name": "Structure & Form",
+                        "category": "general",
+                        "formulas": [],
+                        "overlays": [
+                            {"type": "outline", "color": "white"},
+                            {"type": "label", "text": "Object Detected", "position": "top", "color": "#00ff00"}
+                        ]
+                    }
+                ]
+            }
     
     # Build response
     concepts = []
@@ -404,10 +533,14 @@ async def extract_concepts(request: ConceptRequest):
 
         modules.append(module_entry)
     
+    # Add real-time web search description using Gemini
+    web_search_info = await get_object_web_info(object_class)
+    
     return ConceptResponse(
         concepts=concepts,
         overlays=overlays,
-        modules=modules
+        modules=modules,
+        web_info=web_search_info
     )
 
 
@@ -483,6 +616,187 @@ async def get_concept_relationships(concepts: List[str]):
     }
     
     return graph_data
+
+
+@app.get("/api/topics/generate")
+async def generate_topics_dynamically(subject: Optional[str] = None, count: int = 20):
+    """
+    Generate educational topics dynamically using Gemini AI
+    """
+    try:
+        if not subject:
+            # Generate comprehensive catalog
+            subjects = ["Mathematics", "Physics", "Chemistry", "Biology", "Geometry", "Engineering"]
+            all_topics = []
+            
+            for subj in subjects:
+                topics = await generate_gemini_topics(subj, count // len(subjects))
+                all_topics.extend(topics)
+            
+            return {"topics": all_topics, "total": len(all_topics)}
+        else:
+            # Generate for specific subject
+            topics = await generate_gemini_topics(subject, count)
+            return {"subject": subject, "topics": topics, "total": len(topics)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate topics: {str(e)}")
+
+
+async def generate_gemini_topics(subject: str, count: int) -> List[Dict[str, Any]]:
+    """Generate topics using Gemini AI"""
+    prompt = f"""Generate exactly {count} educational topics for {subject} suitable for high school and college students.
+
+For each topic provide these exact fields:
+- name: Topic name (2-4 words)
+- category: must be one of: math, physics, chemistry, biology, geometry, engineering
+- notes: Detailed 200-300 word explanation
+- formulas: Array of 2-5 formulas as plain text strings
+- difficulty: must be one of: beginner, intermediate, advanced
+- key_points: Array of 3-5 key concept bullet points
+- applications: Array of 2-3 real-world uses
+
+Return ONLY a valid JSON array with NO markdown, NO code blocks, NO extra text:
+[{{"name":"Newton's Laws","category":"physics","notes":"...","formulas":["F=ma","..."],"difficulty":"intermediate","key_points":["..."],"applications":["..."]}}]"""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        text = response.text.strip()
+        
+        print(f"🤖 Gemini raw response for {subject}:")
+        print(text[:500])  # Debug first 500 chars
+        
+        # Aggressive cleaning of markdown
+        text = text.replace("```json", "").replace("```", "").strip()
+        
+        # Find JSON array in response
+        start_idx = text.find('[')
+        end_idx = text.rfind(']')
+        if start_idx != -1 and end_idx != -1:
+            text = text[start_idx:end_idx+1]
+        
+        topics = json.loads(text)
+        
+        # Validate and add Byju's links
+        validated_topics = []
+        for topic in topics:
+            if isinstance(topic, dict) and 'name' in topic:
+                topic_name = topic.get("name", "")
+                topic["byjus_link"] = f"https://byjus.com/search/?q={topic_name.replace(' ', '+')}"
+                validated_topics.append(topic)
+        
+        print(f"✅ Generated {len(validated_topics)} topics for {subject}")
+        return validated_topics
+        
+    except json.JSONDecodeError as e:
+        print(f"❌ JSON Parse Error for {subject}: {e}")
+        print(f"Response text: {text[:1000]}")
+        return []
+    except Exception as e:
+        print(f"❌ Error generating topics for {subject}: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+
+async def generate_ar_overlays_gemini(object_name: str) -> Dict[str, Any]:
+    """Generate AR overlay configurations dynamically using Gemini AI"""
+    prompt = f"""Generate AR overlay configuration for educational visualization of: {object_name}
+
+Provide 8-12 detailed anatomical/component labels and educational visualizations.
+
+Return ONLY valid JSON:
+{{
+  "concepts": [
+    {{
+      "name": "Primary Concept Name",
+      "category": "physics/chemistry/biology/geometry",
+      "formulas": ["formula1", "formula2"],
+      "overlays": [
+        {{"type": "label", "text": "Component Name", "position": "top", "color": "#hexcolor"}},
+        {{"type": "label", "text": "Part Name", "position": "bottom", "color": "#hexcolor"}},
+        {{"type": "arrow", "label": "Process", "direction": "up", "color": "#hexcolor"}},
+        {{"type": "particles", "label": "Particle", "movement": "random", "color": "rgba(...)"}}
+      ]
+    }}
+  ]
+}}
+
+For {object_name}, include:
+- 6-8 anatomical/component labels with positions: top, bottom, left, right, center, top-left, bottom-right, front
+- 2-3 process arrows with directions: up, down, left, right
+- 1-2 particle effects with movement: random, flow
+- Use color coding: green (#00ff00 - #88ff00) for biological, red (#ff0000 - #ff8800) for mechanical, blue (#0088ff) for fluids
+
+Make labels specific to {object_name} anatomy and function."""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        text = response.text.strip()
+        
+        print(f"🤖 Gemini AR overlay response for '{object_name}':")
+        print(text[:300])
+        
+        # Clean markdown
+        text = text.replace("```json", "").replace("```", "").strip()
+        
+        # Find JSON object
+        start_idx = text.find('{')
+        end_idx = text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            text = text[start_idx:end_idx+1]
+        
+        config = json.loads(text)
+        return config
+        
+    except Exception as e:
+        print(f"❌ Error generating AR overlays for {object_name}: {e}")
+        return {"concepts": []}
+
+
+@app.get("/api/ar-overlays/generate/{object_name}")
+async def generate_ar_overlays(object_name: str):
+    """
+    Generate AR overlay configurations dynamically using Gemini AI
+    """
+    try:
+        prompt = f"""Generate AR overlay configuration for educational visualization of: {object_name}
+
+Provide detailed anatomical/component labels and visualizations.
+
+Return ONLY valid JSON:
+{{
+  "concepts": [
+    {{
+      "name": "Primary Concept",
+      "category": "physics/chemistry/biology/geometry",
+      "formulas": ["..."],
+      "overlays": [
+        {{"type": "label", "text": "Component Name", "position": "top/bottom/left/right/center", "color": "#hexcolor"}},
+        {{"type": "arrow", "label": "Process", "direction": "up/down", "color": "#hexcolor"}},
+        {{"type": "particles", "label": "Particle", "movement": "random", "color": "rgba(...)"}}
+      ]
+    }}
+  ]
+}}
+
+Include 8-12 overlays total with anatomical labels, process arrows, and particle effects."""
+
+        response = gemini_model.generate_content(prompt)
+        text = response.text.strip()
+        
+        # Clean markdown
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+        
+        config = json.loads(text)
+        return config
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate AR overlays: {str(e)}")
 
 
 @app.get("/api/health")

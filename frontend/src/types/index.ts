@@ -25,9 +25,10 @@ export interface ScientificConcept {
 export interface AROverlay {
   concept_id: string;
   type: 'vector' | 'flow' | 'label' | 'arrow' | 'heatmap' | 'particles' | 'trajectory' | 'dimension' | 'outline';
-  position?: { x: number; y: number; z: number };
+  position?: { x: number; y: number; z: number } | 'top' | 'bottom' | 'left' | 'right' | 'center' | 'middle' | 'top-left' | 'top-right' | 'top-middle' | 'top-center' | 'bottom-left' | 'bottom-right' | 'front' | 'front-top';
   color?: string;
   label?: string;
+  text?: string;
   from?: string;
   to?: string;
   direction?: string;
@@ -64,6 +65,12 @@ export interface ConceptResponse {
   concepts: ScientificConcept[];
   overlays: AROverlay[];
   modules: StudyModule[];
+  web_info?: {
+    description?: string;
+    key_facts?: string[];
+    scientific_principles?: string[];
+    fun_fact?: string;
+  };
 }
 
 export interface CameraState {

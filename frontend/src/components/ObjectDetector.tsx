@@ -38,11 +38,23 @@ export default function ObjectDetector({ onDetection, isActive }: ObjectDetector
   const detectObjects = async (videoElement: HTMLVideoElement) => {
     if (!model || !videoElement) return;
 
+    // Check if video is ready
+    if (videoElement.readyState < 2) {
+      console.log('⏳ Video not ready yet...');
+      return;
+    }
+
     try {
       const predictions = await model.detect(videoElement);
       
+      console.log('🔍 Detection results:', predictions.length, 'objects found');
+      
       if (predictions && predictions.length > 0) {
+        console.log('✅ Detections:', predictions);
         onDetection(predictions);
+      } else {
+        // Call with empty array so UI knows detection ran
+        onDetection([]);
       }
     } catch (err) {
       console.error('Detection error:', err);

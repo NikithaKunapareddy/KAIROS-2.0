@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import CameraFeed from '@/components/CameraFeed';
 import ObjectDetector from '@/components/ObjectDetector';
-import AROverlayCanvas from '@/components/AROverlayCanvas';
+import ProfessionalAROverlay from '@/components/ProfessionalAROverlay';
 import ConceptPanel from '@/components/ConceptPanel';
 import { conceptAPI } from '@/lib/api/client';
 import { useARStore } from '@/lib/stores/arStore';
@@ -79,9 +79,9 @@ export default function ScanPage() {
         />
       )}
 
-      {/* AR Overlay Canvas */}
-      {isScanning && concepts && (
-        <AROverlayCanvas
+      {/* Professional AR Overlay Canvas */}
+      {isScanning && concepts && detectedObjects.length > 0 && (
+        <ProfessionalAROverlay
           detections={detectedObjects}
           overlays={concepts.overlays}
         />
@@ -138,12 +138,13 @@ export default function ScanPage() {
           concepts={concepts.concepts}
           modules={concepts.modules}
           isLoading={isLoadingConcepts}
+          webInfo={concepts.web_info}
         />
       )}
 
       {/* Detection Boxes Overlay */}
       {isScanning && detectedObjects.length > 0 && (
-        <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 pointer-events-none z-30">
           {detectedObjects.map((detection, index) => {
             const videoElement = document.querySelector('video');
             if (!videoElement) return null;
@@ -161,15 +162,24 @@ export default function ScanPage() {
             return (
               <div
                 key={index}
-                className="ar-marker"
                 style={{
+                  position: 'absolute',
                   left: `${x * scaleX}px`,
                   top: `${y * scaleY}px`,
                   width: `${width * scaleX}px`,
                   height: `${height * scaleY}px`,
+                  border: '3px solid #00ff00',
+                  borderRadius: '8px',
+                  boxShadow: '0 0 20px rgba(0, 255, 0, 0.5)',
+                  animation: 'pulse 2s infinite',
                 }}
               >
-                <div className="absolute -top-8 left-0 bg-kairos-primary text-white px-2 py-1 rounded text-sm font-bold">
+                <div 
+                  className="absolute -top-10 left-0 bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg"
+                  style={{
+                    backdropFilter: 'blur(10px)',
+                  }}
+                >
                   {detection.class} ({Math.round(detection.score * 100)}%)
                 </div>
               </div>

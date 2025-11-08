@@ -52,4 +52,12 @@ export const conceptAPI = {
     const response = await apiClient.get('/api/health');
     return response.data;
   },
+  /**
+   * Get catalog of topics (optionally by subject)
+   */
+  async getTopics(subject?: string) {
+    const params = subject ? { params: { subject } } : undefined;
+    const response = await apiClient.get('/api/topics', params as any);
+    return response.data;
+  },
 };

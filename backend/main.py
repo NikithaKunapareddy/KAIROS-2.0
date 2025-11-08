@@ -183,6 +183,148 @@ CONCEPT_DATABASE = {
     }
 }
 
+# Expanded topic catalog (Math / Physics / Chemistry) with notes and external Byju's links
+def byjus_search_link(topic_name: str) -> str:
+    # Simple link to Byju's search for the topic (safe fallback)
+    return f"https://www.byjus.com/search/?q={topic_name.replace(' ', '+')}"
+
+TOPICS_DATABASE = {
+    "math": [
+        {
+            "name": "Algebra - Linear Equations",
+            "category": "math",
+            "notes": "Linear equations, methods of solution, graphing lines, systems of equations.",
+            "formulas": ["ax + b = 0", "y = mx + c"],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("linear equations")
+        },
+        {
+            "name": "Algebra - Quadratic Equations",
+            "category": "math",
+            "notes": "Standard form ax^2 + bx + c = 0, factoring, completing the square, quadratic formula.",
+            "formulas": ["x = (-b ± sqrt(b^2 - 4ac)) / (2a)"],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("quadratic equations")
+        },
+        {
+            "name": "Calculus - Derivatives",
+            "category": "math",
+            "notes": "Rate of change, differentiation rules (product, quotient, chain), applications to maxima/minima.",
+            "formulas": ["d/dx x^n = n x^{n-1}"],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("derivative")
+        },
+        {
+            "name": "Calculus - Integrals",
+            "category": "math",
+            "notes": "Antiderivatives, definite and indefinite integrals, area under curve, fundamental theorem of calculus.",
+            "formulas": ["∫ x^n dx = x^{n+1} / (n+1) + C"],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("integrals")
+        },
+        {
+            "name": "Trigonometry",
+            "category": "math",
+            "notes": "Sine, cosine, tangent, identities, unit circle, solving triangles.",
+            "formulas": ["sin^2 θ + cos^2 θ = 1", "tan θ = sin θ / cos θ"],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("trigonometry")
+        },
+        {
+            "name": "Probability & Statistics",
+            "category": "math",
+            "notes": "Basic probability, combinatorics, mean/median/mode, standard deviation.",
+            "formulas": ["P(A) = favorable / total"],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("probability")
+        }
+    ],
+    "physics": [
+        {
+            "name": "Kinematics",
+            "category": "physics",
+            "notes": "Motion in one and two dimensions, velocity, acceleration, equations of motion.",
+            "formulas": ["v = u + at", "s = ut + 1/2 a t^2"],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("kinematics")
+        },
+        {
+            "name": "Dynamics & Newton's Laws",
+            "category": "physics",
+            "notes": "Force, mass, acceleration, free-body diagrams, friction, circular motion.",
+            "formulas": ["F = ma", "τ = r × F"],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("newton's laws")
+        },
+        {
+            "name": "Energy & Work",
+            "category": "physics",
+            "notes": "Kinetic/potential energy, work-energy theorem, conservation of energy.",
+            "formulas": ["KE = 1/2 mv^2", "W = F · d"],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("work and energy")
+        },
+        {
+            "name": "Thermodynamics",
+            "category": "physics",
+            "notes": "Laws of thermodynamics, heat transfer, ideal gases, PV diagrams.",
+            "formulas": ["PV = nRT", "ΔU = Q - W"],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("thermodynamics")
+        },
+        {
+            "name": "Electricity & Magnetism",
+            "category": "physics",
+            "notes": "Coulomb's law, electric fields, circuits, magnetic fields, Faraday's law.",
+            "formulas": ["V = IR", "∇ × E = -∂B/∂t"],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("electricity and magnetism")
+        }
+    ],
+    "chemistry": [
+        {
+            "name": "Atomic Structure",
+            "category": "chemistry",
+            "notes": "Protons, neutrons, electrons, electronic configuration, isotopes.",
+            "formulas": [],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("atomic structure")
+        },
+        {
+            "name": "Periodic Table",
+            "category": "chemistry",
+            "notes": "Trends across periods/groups: electronegativity, atomic radius, ionization energy.",
+            "formulas": [],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("periodic table")
+        },
+        {
+            "name": "Chemical Bonding",
+            "category": "chemistry",
+            "notes": "Ionic, covalent, metallic bonding, polarity, VSEPR shapes.",
+            "formulas": [],
+            "difficulty": "beginner",
+            "byjus_link": byjus_search_link("chemical bonding")
+        },
+        {
+            "name": "Stoichiometry",
+            "category": "chemistry",
+            "notes": "Balancing equations, mole concept, limiting reagent, yield calculations.",
+            "formulas": [],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("stoichiometry")
+        },
+        {
+            "name": "Chemical Kinetics",
+            "category": "chemistry",
+            "notes": "Reaction rates, order of reaction, rate laws, activation energy.",
+            "formulas": ["rate = k [A]^n"],
+            "difficulty": "intermediate",
+            "byjus_link": byjus_search_link("chemical kinetics")
+        }
+    ]
+}
+
 
 @app.get("/")
 async def root():
@@ -237,13 +379,30 @@ async def extract_concepts(request: ConceptRequest):
             **overlay
         } for overlay in concept.get("overlays", [])])
         
-        modules.append({
+        # attempt to enrich module with notes and external links from TOPICS_DATABASE
+        module_entry = {
             "id": concept["name"].lower().replace(" ", "_"),
             "title": concept["name"],
             "category": concept["category"],
             "formulas": concept["formulas"],
-            "difficulty": "intermediate"
-        })
+            "difficulty": "intermediate",
+            "notes": None,
+            "byjus_link": None
+        }
+
+        # find matching topic in TOPICS_DATABASE (simple substring/name match)
+        for subj, topics in TOPICS_DATABASE.items():
+            for t in topics:
+                if t["name"].lower() == concept["name"].lower() or concept["name"].lower() in t["name"].lower():
+                    module_entry["notes"] = t.get("notes")
+                    module_entry["byjus_link"] = t.get("byjus_link")
+                    # prefer explicit difficulty if present
+                    module_entry["difficulty"] = t.get("difficulty", module_entry["difficulty"])
+                    break
+            if module_entry["notes"]:
+                break
+
+        modules.append(module_entry)
     
     return ConceptResponse(
         concepts=concepts,
@@ -273,6 +432,17 @@ async def solve_equation(equation: str, variable: str = "x"):
             "error": str(e),
             "equation": equation
         }
+
+
+@app.get("/api/topics")
+async def list_topics(subject: str = None):
+    """
+    Return the catalog of topics. If subject is provided (math|physics|chemistry), return only that subject.
+    """
+    if subject:
+        subject_key = subject.lower()
+        return {subject_key: TOPICS_DATABASE.get(subject_key, [])}
+    return TOPICS_DATABASE
 
 
 @app.post("/api/concept-relationships")

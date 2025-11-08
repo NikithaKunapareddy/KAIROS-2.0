@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { conceptAPI } from '@/lib/api/client';
 
 // Module data structure
 interface Module {
@@ -9,86 +10,72 @@ interface Module {
   title: string;
   category: string;
   difficulty: string;
-  concepts: string[];
-  icon: string;
+  concepts?: string[];
+  icon?: string;
+  notes?: string | null;
+  byjus_link?: string | null;
 }
-
-const SAMPLE_MODULES: Module[] = [
-  {
-    id: 'photosynthesis',
-    title: 'Photosynthesis',
-    category: 'biology',
-    difficulty: 'intermediate',
-    concepts: ['CO₂ → O₂ conversion', 'Chlorophyll function', 'Light reactions'],
-    icon: '🌱',
-  },
-  {
-    id: 'torque',
-    title: 'Torque & Rotation',
-    category: 'physics',
-    difficulty: 'intermediate',
-    concepts: ['τ = r × F', 'Angular momentum', 'Rotational motion'],
-    icon: '⚙️',
-  },
-  {
-    id: 'diffusion',
-    title: 'Diffusion',
-    category: 'chemistry',
-    difficulty: 'beginner',
-    concepts: ["Fick's laws", 'Concentration gradients', 'Molecular movement'],
-    icon: '🧪',
-  },
-  {
-    id: 'geometry',
-    title: 'Geometric Optimization',
-    category: 'geometry',
-    difficulty: 'advanced',
-    concepts: ['Volume calculations', 'Surface area', 'Optimization'],
-    icon: '📐',
-  },
-  {
-    id: 'projectile',
-    title: 'Projectile Motion',
-    category: 'physics',
-    difficulty: 'intermediate',
-    concepts: ['Parabolic trajectory', 'Velocity components', 'Range formula'],
-    icon: '🎯',
-  },
-  {
-    id: 'thermodynamics',
-    title: 'Thermodynamics',
-    category: 'physics',
-    difficulty: 'advanced',
-    concepts: ['Laws of thermodynamics', 'Heat transfer', 'Entropy'],
-    icon: '🔥',
-  },
-];
 
 export default function ModulesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredModules, setFilteredModules] = useState(SAMPLE_MODULES);
+  const [filteredModules, setFilteredModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['all', 'physics', 'chemistry', 'biology', 'geometry'];
+  const categories = ['all', 'math', 'physics', 'chemistry', 'biology', 'geometry'];
+
+  // Load topics from backend
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const topics = await conceptAPI.getTopics();
+        // Flatten topics into module-like list
+        const modules: Module[] = [];
+        Object.keys(topics).forEach((subject) => {
+          (topics as any)[subject].forEach((t: any) => {
+            modules.push({
+              id: t.name.toLowerCase().replace(/\s+/g, '_'),
+              title: t.name,
+              category: t.category || subject,
+              difficulty: t.difficulty || 'intermediate',
+              notes: t.notes || null,
+              byjus_link: t.byjus_link || null,
+            });
+          });
+        });
+
+        // initial filter
+        setFilteredModules(modules);
+      } catch (e) {
+        console.error('Failed to load topics', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
 
   useEffect(() => {
-    let filtered = SAMPLE_MODULES;
+    // apply filters locally when modules change
+    let filtered = filteredModules;
 
     // Filter by category
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(m => m.category === selectedCategory);
+      filtered = filtered.filter((m) => m.category === selectedCategory);
     }
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(
-        m =>
-          m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          m.concepts.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()))
+      filtered = filtered.filter((m) =>
+        m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.notes || '').toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     setFilteredModules(filtered);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, searchQuery]);
 
   return (
@@ -178,18 +165,30 @@ export default function ModulesPage() {
                 </span>
               </div>
 
-              <div className="space-y-2">
-                {module.concepts.map((concept, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-white/80">
-                    <span className="text-kairos-accent">•</span>
-                    {concept}
-                  </div>
-                ))}
+              <div className="mb-4">
+                {module.notes ? (
+                  <p className="text-sm text-white/80">{module.notes}</p>
+                ) : (
+                  <p className="text-sm text-white/80">No notes available yet.</p>
+                )}
               </div>
 
-              <button className="mt-4 w-full bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-lg transition-all">
-                Learn More →
-              </button>
+              <div className="flex gap-2">
+                {module.byjus_link ? (
+                  <a
+                    href={module.byjus_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 w-full text-center bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-lg transition-all"
+                  >
+                    Open on BYJU'S
+                  </a>
+                ) : (
+                  <Link href={`/modules/${module.id}`} className="mt-2 w-full text-center bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-lg transition-all">
+                    Learn More →
+                  </Link>
+                )}
+              </div>
             </div>
           ))}
         </div>

@@ -7,6 +7,9 @@ import networkx as nx
 from sympy.parsing.sympy_parser import parse_expr
 import json
 import google.generativeai as genai
+import base64
+from PIL import Image
+import io
 
 # Configure Gemini API
 GEMINI_API_KEY = "AIzaSyChw-jCFIz3a25nOWDC4rD76alb8zVYvAk"
@@ -542,6 +545,132 @@ async def extract_concepts(request: ConceptRequest):
         modules=modules,
         web_info=web_search_info
     )
+
+
+@app.post("/api/analyze-image")
+async def analyze_image_with_gemini(file: UploadFile = File(...)):
+    """
+    Analyze uploaded image using Gemini Vision API
+    Returns precise component positions and educational AR overlay data
+    """
+    try:
+        # Read and process the uploaded image
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+        
+        # Convert to RGB if necessary (in case of PNG with alpha channel)
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Resize if too large (max 1024px for faster processing)
+        max_size = 1024
+        if image.width > max_size or image.height > max_size:
+            ratio = min(max_size / image.width, max_size / image.height)
+            new_size = (int(image.width * ratio), int(image.height * ratio))
+            image = image.resize(new_size, Image.Resampling.LANCZOS)
+        
+        # Encode image to base64 for Gemini Vision API
+        buffered = io.BytesIO()
+        image.save(buffered, format="JPEG", quality=85)
+        img_base64 = base64.b64encode(buffered.getvalue()).decode()
+        
+        # Prepare detailed prompt for Gemini Vision
+        prompt = """Analyze this image and provide detailed educational AR overlay data for a learning app.
+
+IMPORTANT: Identify the main object in the image and its key components/parts with PRECISE POSITIONS.
+
+Return ONLY valid JSON in this exact format:
+{
+  "object_detected": "object name",
+  "confidence": 0.95,
+  "components": [
+    {
+      "name": "Component Name",
+      "position": {"x": 0.5, "y": 0.3},
+      "description": "Brief description"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Main Educational Concept",
+      "category": "physics/chemistry/biology/geometry",
+      "formulas": ["formula1", "formula2"]
+    }
+  ],
+  "educational_info": {
+    "description": "2-3 sentence description of the object",
+    "key_facts": ["fact1", "fact2", "fact3"],
+    "scientific_principles": ["principle1", "principle2"],
+    "fun_fact": "Interesting fact"
+  },
+  "processes": [
+    {
+      "name": "Process Name",
+      "type": "arrow",
+      "from": {"x": 0.3, "y": 0.4},
+      "to": {"x": 0.7, "y": 0.4},
+      "label": "Process Label",
+      "color": "#hexcolor"
+    }
+  ]
+}
+
+CRITICAL INSTRUCTIONS:
+- Normalize all x,y positions between 0 and 1 (0 = left/top, 1 = right/bottom)
+- Position should be where the label should be placed relative to the image
+- Provide 6-10 component labels with accurate positions
+- Include 2-3 educational processes/arrows if applicable
+- Focus on scientific/educational aspects
+- Be precise with component locations by analyzing the actual image
+"""
+        
+        # Call Gemini Vision API
+        model_vision = genai.GenerativeModel('gemini-2.0-flash-exp')
+        response = model_vision.generate_content([
+            prompt,
+            {
+                "mime_type": "image/jpeg",
+                "data": img_base64
+            }
+        ])
+        
+        # Parse the response
+        response_text = response.text.strip()
+        
+        # Clean up response (remove markdown code blocks if present)
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        # Parse JSON
+        analysis_result = json.loads(response_text)
+        
+        # Add metadata
+        analysis_result["image_width"] = image.width
+        analysis_result["image_height"] = image.height
+        analysis_result["processing_time"] = "1-2 seconds"
+        
+        return analysis_result
+        
+    except json.JSONDecodeError as e:
+        print(f"❌ JSON parsing error: {e}")
+        print(f"Response text: {response_text[:500]}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse Gemini Vision response: {str(e)}"
+        )
+    except Exception as e:
+        print(f"❌ Gemini Vision analysis failed: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Image analysis failed: {str(e)}"
+        )
 
 
 @app.post("/api/solve-equation")

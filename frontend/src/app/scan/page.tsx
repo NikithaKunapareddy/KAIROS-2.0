@@ -40,28 +40,12 @@ export default function ScanPage() {
         (prev.score > current.score) ? prev : current
       );
       
-      // Only fetch concepts if it's a different object or first detection
+      // Just update current object, don't fetch concepts yet
       if (topDetection.class !== currentObject) {
         setCurrentObject(topDetection.class);
-        await fetchConcepts(topDetection.class, topDetection.score);
       }
     }
   }, [currentObject]);
-
-  // Fetch scientific concepts for detected object
-  const fetchConcepts = async (objectClass: string, confidence: number) => {
-    try {
-      setIsLoadingConcepts(true);
-      const response = await conceptAPI.extractConcepts(objectClass, confidence);
-      setConcepts(response);
-      setStoreConcepts(response.concepts);
-      console.log('📚 Concepts loaded:', response);
-    } catch (error) {
-      console.error('Failed to fetch concepts:', error);
-    } finally {
-      setIsLoadingConcepts(false);
-    }
-  };
 
   // Capture frame and analyze with Gemini Vision
   const handleAnalyzeWithAI = async () => {
@@ -120,6 +104,17 @@ export default function ScanPage() {
       console.log('✅ Gemini Vision Analysis:', result);
       
       setAnalysisResult(result);
+      
+      // Now fetch web info for the detected object to show in ConceptPanel
+      if (result.object_detected) {
+        try {
+          const webResponse = await conceptAPI.extractConcepts(result.object_detected, result.confidence || 0.9);
+          setConcepts(webResponse);
+          setStoreConcepts(webResponse.concepts);
+        } catch (error) {
+          console.error('Failed to fetch web info:', error);
+        }
+      }
       
       // Stop scanning mode
       setIsScanning(false);
@@ -183,13 +178,7 @@ export default function ScanPage() {
         />
       )}
 
-      {/* Professional AR Overlay Canvas */}
-      {isScanning && concepts && detectedObjects.length > 0 && !analysisResult && (
-        <ProfessionalAROverlay
-          detections={detectedObjects}
-          overlays={concepts.overlays}
-        />
-      )}
+      {/* Professional AR Overlay Canvas - REMOVED, only show after Gemini Vision analysis */}
 
       {/* Top Bar */}
       {!analysisResult && (
@@ -338,8 +327,8 @@ export default function ScanPage() {
         </div>
       )}
 
-      {/* Concept Panel */}
-      {isScanning && concepts && !analysisResult && (
+      {/* Concept Panel - Only show AFTER analysis */}
+      {analysisResult && concepts && (
         <ConceptPanel
           concepts={concepts.concepts}
           modules={concepts.modules}

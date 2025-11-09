@@ -100,9 +100,5 @@ export default function ObjectDetector({ onDetection, isActive }: ObjectDetector
     );
   }
 
-  return (
-    <div className="fixed top-4 right-4 bg-green-500/90 text-white px-4 py-2 rounded-lg backdrop-blur-sm z-50">
-      <span>✓ AI Ready</span>
-    </div>
-  );
+  return null;
 }

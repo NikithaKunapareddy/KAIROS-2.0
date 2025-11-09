@@ -300,7 +300,7 @@ export default function Home() {
               className="mt-20 grid grid-cols-3 gap-8 max-w-3xl mx-auto"
             >
               {[
-                { value: '100%', label: 'Browser-Based' },
+                { value: 'Top-Tier', label: 'RAG Engine' },
                 { value: 'Real-Time', label: 'AI Detection' },
                 { value: 'Free', label: 'Forever' },
               ].map((stat, i) => (

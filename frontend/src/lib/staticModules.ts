@@ -470,7 +470,7 @@ A single number that provides important information about a matrix:
     title: 'Trigonometry - Sine, Cosine, Tangent',
     category: 'math',
     difficulty: 'beginner',
-    icon: '△',
+    icon: '📐',
     description: 'Master the relationships between angles and sides in triangles - essential for waves, oscillations, and circles.',
     
     theory: `**Trigonometry** is the study of relationships between angles and sides of triangles. It's fundamental to understanding periodic phenomena like waves, oscillations, and circular motion.
@@ -718,7 +718,7 @@ This is always true for any angle θ!
     title: 'Probability & Statistics',
     category: 'math',
     difficulty: 'intermediate',
-    icon: '⚄',
+    icon: '🎲',
     description: 'Understanding randomness, chance, and data analysis through mathematical principles.',
     
     theory: `**Probability** is the mathematical study of random events and uncertainty. It quantifies how likely an event is to occur.
@@ -765,7 +765,7 @@ Statistics is the science of collecting, analyzing, and interpreting data.
     title: 'Number Theory - Primes & Divisibility',
     category: 'math',
     difficulty: 'intermediate',
-    icon: '∞',
+    icon: '🔐',
     description: 'Study of integers, prime numbers, and their fascinating properties in cryptography and computing.',
     
     theory: `**Number Theory** is the study of integers and their properties. It's one of the oldest branches of mathematics with deep connections to cryptography and computer science.
@@ -812,7 +812,7 @@ The smallest positive integer divisible by both numbers.
     title: 'Complex Numbers & Imaginary Unit',
     category: 'math',
     difficulty: 'intermediate',
-    icon: 'ℂ',
+    icon: '🧮',
     description: 'Extend the real number system with imaginary numbers - essential for electrical engineering and quantum mechanics.',
     
     theory: `**Complex Numbers** extend the real number system by introducing the imaginary unit **i**, where i² = -1. They are essential in electrical engineering, quantum mechanics, and signal processing.

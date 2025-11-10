@@ -1599,8 +1599,7 @@ git push origin feature/amazing-feature
 <br/>
 <sub>AR/ML Integration</sub>
 <br/>
-<a href="https://github.com/likhith">GitHub</a> •
-<a href="https://linkedin.com/in/likhith">LinkedIn</a>
+<a href="https://github.com/Likhith623">GitHub</a>
 </td>
 <td align="center" width="33%">
 <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Woman%20Technologist.png" width="100" />
@@ -1611,8 +1610,7 @@ git push origin feature/amazing-feature
 <br/>
 <sub>RAG Architecture</sub>
 <br/>
-<a href="https://github.com/nikitha">GitHub</a> •
-<a href="https://linkedin.com/in/nikitha">LinkedIn</a>
+<a href="https://github.com/NikithaKunapareddy">GitHub</a>
 </td>
 <td align="center" width="33%">
 <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Man%20Technologist%20Medium%20Skin%20Tone.png" width="100" />
@@ -1623,8 +1621,7 @@ git push origin feature/amazing-feature
 <br/>
 <sub>API Architecture</sub>
 <br/>
-<a href="https://github.com/samad">GitHub</a> •
-<a href="https://linkedin.com/in/samad">LinkedIn</a>
+<a href="https://github.com/Samad1256">GitHub</a>
 </td>
 </tr>
 </table>
@@ -1633,13 +1630,13 @@ git push origin feature/amazing-feature
 
 ### 🎯 **Team Expertise**
 
-| Domain | Technologies | Contribution |
-|--------|-------------|--------------|
-| **Frontend** | Next.js, React, TypeScript, Tailwind, Framer Motion | Likhith Vasireddy |
-| **AR/ML** | TensorFlow.js, COCO-SSD, MediaPipe, Canvas API | Likhith Vasireddy |
-| **AI/RAG** | ChromaDB, sentence-transformers, Gemini AI | Nikitha Kunapareddy |
-| **Backend** | FastAPI, Python, Uvicorn, Pydantic | Samad Shaik |
-| **DevOps** | Docker, CI/CD, Cloud Deployment | Samad Shaik |
+| Domain | Technologies | GitHub | Contribution |
+|--------|-------------|--------|--------------|
+| **Frontend** | Next.js, React, TypeScript, Tailwind, Framer Motion | [@Likhith623](https://github.com/Likhith623) | Likhith Vasireddy |
+| **AR/ML** | TensorFlow.js, COCO-SSD, MediaPipe, Canvas API | [@Likhith623](https://github.com/Likhith623) | Likhith Vasireddy |
+| **AI/RAG** | ChromaDB, sentence-transformers, Gemini AI | [@NikithaKunapareddy](https://github.com/NikithaKunapareddy) | Nikitha Kunapareddy |
+| **Backend** | FastAPI, Python, Uvicorn, Pydantic | [@Samad1256](https://github.com/Samad1256) | Samad Shaik |
+| **DevOps** | Docker, CI/CD, Cloud Deployment | [@Samad1256](https://github.com/Samad1256) | Samad Shaik |
 
 ---
 
@@ -1681,18 +1678,16 @@ SOFTWARE.
 
 <p>
 <a href="https://github.com/Likhith623/KAIROS-2.0"><img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" /></a>
-<a href="mailto:team.neutrons@kairos.edu"><img src="https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail" /></a>
-<a href="https://twitter.com/kairos_edu"><img src="https://img.shields.io/badge/Twitter-Follow-1DA1F2?style=for-the-badge&logo=twitter" /></a>
-<a href="https://discord.gg/kairos"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord" /></a>
+<a href="mailto:likhithchowdary_vasireddy@srmap.edu.in"><img src="https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail" /></a>
+<a href="https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing"><img src="https://img.shields.io/badge/Demo-Watch%20Video-FF0000?style=for-the-badge&logo=youtube" /></a>
 </p>
 
 ### 💬 **Get Help**
 
-- 📧 **Email:** support@kairos-edu.com
-- 💬 **Discord:** Join our community server
+- 📧 **Email:** likhithchowdary_vasireddy@srmap.edu.in
+- � **Support:** likhithchowdary_vasireddy@srmap.edu.in
 - 🐛 **Issues:** [GitHub Issues](https://github.com/Likhith623/KAIROS-2.0/issues)
-- 📖 **Docs:** [Full Documentation](https://docs.kairos-edu.com)
-- 🎥 **Video Tutorials:** [YouTube Channel](https://youtube.com/kairos-edu)
+- 🎥 **Demo Video:** [Watch on Google Drive](https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing)
 
 ### ⭐ **Show Your Support**
 
@@ -1715,37 +1710,25 @@ If KAIROS 2.0 impressed you, please:
 
 <table>
 <tr>
-<td align="center" width="33%">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Camera%20with%20Flash.png" width="60" />
+<td align="center">
+<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Camera%20with%20Flash.png" width="80" />
 <br/>
-<strong>AR Scanner Demo</strong>
+<strong>🎬 Complete System Demonstration</strong>
 <br/>
-<sub>2-minute walkthrough</sub>
+<sub>Full walkthrough of all three pillars</sub>
 <br/>
-<a href="https://youtube.com/watch?v=demo1">▶️ Watch Now</a>
-</td>
-<td align="center" width="33%">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Brain.png" width="60" />
 <br/>
-<strong>RAG Agent Demo</strong>
+<a href="https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing">
+  <img src="https://img.shields.io/badge/▶️%20WATCH%20DEMO%20VIDEO-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
+</a>
 <br/>
-<sub>3-minute tutorial</sub>
 <br/>
-<a href="https://youtube.com/watch?v=demo2">▶️ Watch Now</a>
-</td>
-<td align="center" width="33%">
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Open%20Book.png" width="60" />
-<br/>
-<strong>Module Library Demo</strong>
-<br/>
-<sub>1.5-minute overview</sub>
-<br/>
-<a href="https://youtube.com/watch?v=demo3">▶️ Watch Now</a>
+<sub>📹 See AR Scanner, RAG Agent, and Module Library in action!</sub>
 </td>
 </tr>
 </table>
 
-**🔗 Live Demo:** [https://kairos-2.vercel.app](https://kairos-2.vercel.app)
+**🔗 Demo Video:** [Google Drive Link](https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing)
 
 </div>
 
@@ -2534,13 +2517,11 @@ By 2030, KAIROS will have:
 
 | Resource | Link | Description |
 |----------|------|-------------|
-| 📖 **Documentation** | [docs.kairos-edu.com](https://docs.kairos-edu.com) | Full technical docs |
-| 🎥 **Video Tutorials** | [YouTube](https://youtube.com/kairos-edu) | Step-by-step guides |
-| 💬 **Community Forum** | [Discord](https://discord.gg/kairos) | Get help, share ideas |
+| 🎥 **Demo Video** | [Google Drive](https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing) | Full system demonstration |
+| � **Source Code** | [GitHub Repository](https://github.com/Likhith623/KAIROS-2.0) | View and contribute |
 | 🐛 **Bug Reports** | [GitHub Issues](https://github.com/Likhith623/KAIROS-2.0/issues) | Report bugs |
 | 💡 **Feature Requests** | [Discussions](https://github.com/Likhith623/KAIROS-2.0/discussions) | Suggest features |
-| 📧 **Contact Us** | team.neutrons@kairos.edu | Direct email |
-| 🐦 **Twitter** | [@kairos_edu](https://twitter.com/kairos_edu) | Latest updates |
+| 📧 **Contact/Support** | likhithchowdary_vasireddy@srmap.edu.in | Email for queries |
 
 </div>
 
@@ -2551,9 +2532,9 @@ By 2030, KAIROS will have:
 ### 🚀 **Ready to Transform Education?**
 
 <p>
-<a href="https://kairos-2.vercel.app"><img src="https://img.shields.io/badge/Try%20Live%20Demo-00C7B7?style=for-the-badge&logo=vercel&logoColor=white" /></a>
+<a href="https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing"><img src="https://img.shields.io/badge/Watch%20Demo%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" /></a>
 <a href="https://github.com/Likhith623/KAIROS-2.0"><img src="https://img.shields.io/badge/View%20on%20GitHub-181717?style=for-the-badge&logo=github" /></a>
-<a href="https://docs.kairos-edu.com"><img src="https://img.shields.io/badge/Read%20Docs-5C2D91?style=for-the-badge&logo=read-the-docs&logoColor=white" /></a>
+<a href="mailto:likhithchowdary_vasireddy@srmap.edu.in"><img src="https://img.shields.io/badge/Contact%20Us-EA4335?style=for-the-badge&logo=gmail&logoColor=white" /></a>
 </p>
 
 **🌟 Star • 🔄 Fork • 🤝 Contribute • 📢 Share**

@@ -1,235 +1,384 @@
-# Agent3
-# Agent3: Universal AI Assistant Platform....
+# RAG-AGENT
 
-Agent3 is a full-stack, multi-modal AI assistant platform that combines universal web search, document-based retrieval (RAG), website summarization, and persistent conversation history. It features a modern Next.js frontend and a Flask backend, with support for document upload, web search, and context-aware AI responses using Gemini AI and other LLMs.
+## ✨ Key Features
 
----
+### 📄 Document Intelligence
+- **Multi-format Support**: Upload documents (PDF, DOCX, TXT, MD)
+- **Instant Summarization**: Receive AI-generated summaries upon upload
+- **Contextual Q&A**: Ask questions based on uploaded content
+- **Smart Extraction**: Advanced text processing and chunking
 
-## Table of Contents
+### 🔍 Hybrid Document + Web Search
+When you ask a question after uploading a document:
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Setup & Installation](#setup--installation)
-  - [Backend (Flask)](#backend-flask)
-  - [Frontend (Next.js)](#frontend-nextjs)
-- [Environment Variables](#environment-variables)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Customization](#customization)
-- [Troubleshooting](#troubleshooting)
-- [Deployment](#deployment)
-- [Credits](#credits)
-- [License](#license)
+1. 🎯 **Document Context**: Locates relevant snippets in your uploaded documents
+2. 🌐 **Real-time Web Search**: Performs live web search for current information
+3. 🧠 **Intelligent Synthesis**: Returns a comprehensive 3-part response:
+   - 🔗 Relevant web links with summaries
+   - 📄 Matching document excerpts
+   - 💡 AI-generated answer combining both sources
 
----
+### 🌐 Website Summarization
+- **URL Analysis**: Paste any URL for instant content summarization
+- **Structured Output**: Clear, organized summaries with key points
+- **Content Extraction**: Smart parsing of web content
 
-## Features
+### 💬 Smart Chat (Advanced Mode)
+- **Enhanced Capabilities**: Outperforms standard chatbots in real-world scenarios
+- **Real-time Information**: Access to current events, people, and concepts
+- **Context Awareness**: Maintains conversation flow and memory
+- **Multi-source Responses**: Combines web search with AI reasoning
 
-- **3-Step AI Process:**
-  1. **Web Search:** Finds and summarizes the latest information from the web.
-  2. **Document Analysis (RAG):** Answers questions using your uploaded documents.
-  3. **Context-Aware Response:** Generates detailed, context-rich answers using Gemini AI.
-
-- **Website Summarization:** Paste any URL (including YouTube) to get a structured summary.
-- **Document Upload:** Upload `.txt`, `.pdf`, `.doc`, `.docx`, or `.md` files for RAG-powered Q&A.
-- **Persistent Conversations:** All chats and uploads are saved per user via Supabase.
-- **Modern UI:** Responsive, dark/light mode, and animated chat interface.
-- **Multi-user Support:** Each user has their own conversations and document context.
-- **Error Handling:** Friendly error messages and troubleshooting tips.
+### 🧠 Persistent Memory System
+- **Conversation Storage**: All chats saved in Supabase database
+- **Thread Management**: Create and continue multiple conversation threads
+- **Document Persistence**: Uploaded documents remain accessible across sessions
+- **Search History**: Track and revisit previous queries
 
 ---
 
-## Architecture
+## 🛠️ Tech Stack
 
-- **Frontend:** Next.js (React) app for chat UI, document upload, and conversation management.
-- **Backend:** Flask API for web search, document RAG, website summarization, and AI response generation.
-- **Database:** Supabase for storing user conversations and messages.
-- **RAG:** Uses `sentence-transformers` for embeddings and `faiss` for fast similarity search.
-- **Web Search:** Integrates with Serper and NewsAPI for up-to-date web results.
-- **AI Model:** Uses Gemini AI (Google) for context-aware response generation.
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | Next.js 14 (React) | Modern, responsive UI with server-side rendering |
+| **Backend** | Flask (Python) | High-performance async API with CORS support |
+| **Database** | Supabase (PostgreSQL) | Real-time database with built-in auth |
+| **AI Engine** | OpenAI GPT-4 / Google Gemini | Advanced language model integration |
+| **Web Search** | Serper API / NewsAPI | Real-time web search capabilities |
+| **Vector Store** | FAISS / Sentence Transformers | Efficient document embedding storage |
+| **Deployment** | Vercel + Cloud Platforms | Scalable, global deployment |
 
 ---
 
-## Project Structure
+## 🚀 Quick Start
 
-```
-Agent3/
-├── Agent3/
-│   ├── main.py              # Flask backend (API, RAG, web search, website summarization)
-│   ├── .env                 # Backend environment variables (API keys, Supabase)
-│   └── README.md            # (This file)
-├── front_end/
-│   ├── app/
-│   │   ├── page.js          # Next.js frontend main chat interface
-│   │   ├── layout.js        # Global layout and styles
-│   │   └── globals.css      # Global CSS
-│   ├── public/              # Static assets
-│   ├── package.json         # Frontend dependencies
-│   ├── next.config.mjs      # Next.js config
-│   └── .env.production      # Frontend environment variables
-└── ...
+### Prerequisites
+- Python 3.8+
+- Node.js 18+
+- npm or yarn
+- Git
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Likhith623/advanced-rag-agent.git
+cd advanced-rag-agent
 ```
 
----
+### 2️⃣ Backend Setup (Flask)
+```bash
+# Create virtual environment
+python -m venv venv
 
-## Setup & Installation
+# Activate virtual environment
+# On macOS/Linux:
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
 
-### Backend (Flask)
+# Install dependencies
+pip install -r requirements.txt
 
-1. **Install Python dependencies:**
+# Create environment file
+cp .env.example .env
+# Edit .env with your API keys (see Environment Variables section)
 
-   ```bash
-   cd Agent3
-   pip install -r requirements.txt
-   ```
-
-2. **Set up `.env` with your API keys and Supabase credentials:**
-
-   ```
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_KEY=your_supabase_key
-   SERPER_API_KEY=your_serper_api_key
-   NEWSAPI_KEY=your_newsapi_key
-   NOVITA_API_KEY=your_novita_api_key
-   GEMINI_API_KEY=your_gemini_api_key
-   ```
-
-3. **Run the backend:**
-
-   ```bash
-   python main.py
-   # or
-   flask run --host=0.0.0.0 --port=8080
-   ```
-
-   The backend will be available at `http://localhost:8080`.
-
-### Frontend (Next.js)
-
-1. **Install Node.js dependencies:**
-
-   ```bash
-   cd front_end
-   npm install
-   ```
-
-2. **Set up `.env.production` or `.env.local`:**
-
-   ```
-   NEXT_PUBLIC_API_URL=http://localhost:8080
-   ```
-
-3. **Run the frontend:**
-
-   ```bash
-   npm run dev
-   ```
-
-   The frontend will be available at [http://localhost:3000](http://localhost:3000).
-
----
-
-## Environment Variables
-
-### Backend (`.env`)
-
+# Start the backend server
+python main.py
 ```
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
+
+### 3️⃣ Frontend Setup (Next.js)
+```bash
+# Navigate to frontend directory (new terminal)
+cd front_end
+
+# Install dependencies
+npm install
+# or
+yarn install
+
+# Create environment file
+cp .env.local.example .env.local
+# Edit .env.local with your configuration
+
+# Start the development server
+npm run dev
+# or
+yarn dev
+```
+
+### 4️⃣ Access the Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080
+- **Health Check**: http://localhost:8080/health
+
+---
+
+## 🔐 Environment Variables
+
+### Backend `.env`
+```env
+# Database
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_anon_key
+
+# AI APIs
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_google_gemini_key
+
+# Web Search
 SERPER_API_KEY=your_serper_api_key
-NEWSAPI_KEY=your_newsapi_key
-NOVITA_API_KEY=your_novita_api_key
-GEMINI_API_KEY=your_gemini_api_key
+NEWS_API_KEY=your_newsapi_key
+
+# Application
+DEBUG=true
+LOG_LEVEL=info
+PORT=8080
 ```
 
-### Frontend (`.env.production` or `.env.local`)
-
-```
+### Frontend `.env.local`
+```env
+# API Configuration
 NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Application
+NEXT_PUBLIC_APP_NAME=Advanced RAG Agent
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+### 🔑 Getting API Keys
+
+<details>
+<summary>Click to expand API key setup instructions</summary>
+
+**Supabase**
+1. Go to [supabase.com](https://supabase.com)
+2. Create a new project
+3. Copy URL and anon key from Settings > API
+
+**OpenAI**
+1. Visit [platform.openai.com](https://platform.openai.com)
+2. Create account and add billing
+3. Generate API key in API Keys section
+
+**Google Gemini**
+1. Go to [ai.google.dev](https://ai.google.dev)
+2. Get API key for Gemini Pro
+
+**Serper (Web Search)**
+1. Visit [serper.dev](https://serper.dev)
+2. Sign up for free tier
+3. Copy API key from dashboard
+
+**NewsAPI**
+1. Go to [newsapi.org](https://newsapi.org)
+2. Register for free account
+3. Get your API key
+
+</details>
+
+---
+
+## 📂 Project Structure
+
+```
+advanced-rag-agent/
+├── 📁 front_end/              # Next.js frontend
+│   ├── 📁 app/                # App Router (Next.js 13+)
+│   │   ├── 📄 layout.js       # Root layout
+│   │   ├── 📄 page.js         # Main chat interface
+│   │   └── 📄 globals.css     # Global styles
+│   ├── 📁 components/         # React components
+│   ├── 📁 lib/                # Utility libraries
+│   ├── 📄 package.json        # Node dependencies
+│   ├── 📄 next.config.mjs     # Next.js configuration
+│   └── 📄 .env.local.example  # Environment template
+├── 📄 main.py                 # Flask backend entry point
+├── 📄 requirements.txt        # Python dependencies
+├── 📁 uploads/                # File upload directory
+├── 📄 comprehensive_news_knowledge.txt # Knowledge base
+├── 📄 .env.example            # Environment template
+├── 📄 .gitignore             # Git ignore rules
+├── 📄 README.md              # This file
+└── 📄 LICENSE                # MIT License
 ```
 
 ---
 
-## Usage
+## 🎯 Usage Examples
 
-1. **Sign in with your email** on the frontend.
-2. **Start a new conversation** or continue an existing one.
-3. **Upload documents** to enable document-based Q&A.
-4. **Ask questions** — the assistant will use web search, your documents, and conversation context.
-5. **Paste a website or YouTube URL** to get a structured summary.
+### Document Upload and Query
+```python
+# 1. Upload a research paper
+POST /upload
+- file: research_paper.pdf
+- conversation_id: conv_123
 
----
+# 2. Ask questions about the document
+POST /api/news
+{
+  "query": "What are the main findings in this research?",
+  "user_email": "user@example.com",
+  "conversation_id": "conv_123"
+}
 
-## API Endpoints
+# Response includes:
+# - Document context from uploaded PDF
+# - Related web search results
+# - AI-synthesized answer
+```
 
-- `POST /api/conversations` — List all conversations for a user.
-- `POST /api/conversation/new` — Start a new conversation.
-- `POST /api/conversation/<id>/messages` — Get all messages for a conversation.
-- `DELETE /api/conversation/<id>` — Delete a conversation.
-- `POST /upload` — Upload a document for RAG.
-- `POST /api/news` — Main endpoint for chat queries (web search, RAG, AI response).
-- `GET /health` — Health check endpoint.
+### Web-Only Search
+```python
+POST /api/news
+{
+  "query": "latest developments in quantum computing",
+  "user_email": "user@example.com"
+}
+```
 
----
-
-## Customization
-
-- **Chunking and RAG:** Tune chunk size and similarity threshold in `main.py` for your use case.
-- **UI:** Edit `front_end/app/page.js` for branding, colors, or UX changes.
-- **API Integrations:** Add or swap out web search/news APIs as needed.
-- **Document Types:** Extend `extract_text_from_file` in `main.py` to support more file types.
-
----
-
-## Troubleshooting
-
-- **Document upload not working?**  
-  Ensure RAG dependencies are installed and `RAG_AVAILABLE` is `True` in backend logs.
-
-- **Step 2 shows "No relevant document context"?**  
-  This is normal until you ask a question after uploading a document.
-
-- **CORS errors?**  
-  Make sure your frontend and backend URLs are allowed in the Flask CORS config.
-
-- **Supabase errors?**  
-  Double-check your Supabase URL and key in `.env`.
-
-- **Backend not starting?**  
-  Check for missing Python dependencies or API keys.
+### URL Summarization
+```python
+POST /api/news
+{
+  "query": "https://example.com/article",
+  "user_email": "user@example.com"
+}
+```
 
 ---
 
-## Deployment
+## 🚀 Deployment
 
-- **Frontend:** Deploy the `front_end` folder to [Vercel](https://vercel.com/) or any Next.js-compatible host.
-- **Backend:** Deploy the Flask app to [Google Cloud Run](https://cloud.google.com/run), [Render](https://render.com/), or any Python server.
-- **Environment Variables:** Set all required API keys and URLs in your deployment environment.
+### Frontend (Vercel)
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy frontend
+cd front_end
+vercel --prod
+
+# Set environment variables in Vercel dashboard
+```
+
+### Backend (Railway/Render/Heroku)
+```bash
+# For Railway
+railway login
+railway init
+railway up
+
+# For Render
+# Connect your GitHub repo and deploy
+
+# For Google Cloud Run
+gcloud run deploy advanced-rag-agent \
+  --source . \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+
+### Docker Deployment
+```dockerfile
+# Dockerfile for backend
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8080
+CMD ["python", "main.py"]
+```
 
 ---
 
-## Credits
+## 🧪 Testing
 
-- [Next.js](https://nextjs.org/)
-- [Flask](https://flask.palletsprojects.com/)
-- [Supabase](https://supabase.com/)
-- [Google Gemini AI](https://ai.google.dev/)
-- [Serper](https://serper.dev/)
-- [NewsAPI](https://newsapi.org/)
-- [sentence-transformers](https://www.sbert.net/)
-- [FAISS](https://github.com/facebookresearch/faiss)
-- [newspaper3k](https://newspaper.readthedocs.io/)
-- [Selenium](https://www.selenium.dev/)
+### Backend Health Check
+```bash
+curl http://localhost:8080/health
+```
 
----
-
-## License
-
-MIT License
+### Frontend Development
+```bash
+cd front_end
+npm run test        # Run unit tests
+npm run build       # Production build
+npm run lint        # Code linting
+```
 
 ---
 
-## Contact
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-For questions or support, open an issue or contact the
+### Code Standards
+- **Python**: Follow PEP 8, use Black formatter
+- **JavaScript**: Follow ESLint rules, use Prettier
+- **Commits**: Use conventional commit messages
+
+---
+
+
+## 🐛 Troubleshooting
+
+<details>
+<summary>Common Issues and Solutions</summary>
+
+**Backend won't start**
+```bash
+# Check Python version
+python --version  # Should be 3.8+
+
+# Reinstall dependencies
+pip install -r requirements.txt --force-reinstall
+
+# Check environment variables
+cat .env
+```
+
+**Frontend build errors**
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
+
+# Check Node version
+node --version  # Should be 18+
+```
+
+**Database connection issues**
+- Verify Supabase URL and key
+- Check network connectivity
+- Ensure database is not paused
+
+**File upload issues**
+- Check file size limits
+- Verify supported file formats
+- Ensure uploads/ directory exists
+
+</details>
+
+---
+
+
+## 👨‍💻 Author
+
+**Likhith Vasireddy**
+- GitHub: [@Likhith623](https://github.com/Likhith623)
+
+
+---
+
+
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**

@@ -21,9 +21,7 @@
 
 **From Real-World Objects to Deep Knowledge — In Seconds**
 
-<p align="center">
-  <strong>🏆 Built for HACKFORCE INDIA | Team Neutrons | November 2025</strong>
-</p>
+
 
 ---
 
@@ -57,6 +55,18 @@
 
 </div>
 
+
+<div align="center">
+
+| Resource | Link | Description |
+|----------|------|-------------|
+| 🎥 **Demo Video** | [Google Drive](https://drive.google.com/file/d/1yH1mlzNrJE-4xgptaF4cwIuKicxfEJ2f/view?usp=sharing) | Full system demonstration |
+
+</div>
+
+---
+
+<div align="center">
 ---
 
 ## 📊 **The Problem: Education's Perfect Storm**
